@@ -53,6 +53,11 @@ BLIP_2_PRETRAINED_MODEL_ARCHIVE_LIST = [
 ]
 
 
+def _freeze(model: nn.Module):
+    for p in model.parameters():
+        p.requires_grad = False
+
+
 @dataclass
 class Blip2ForConditionalGenerationModelOutput(ModelOutput):
     """
@@ -1232,6 +1237,12 @@ class Blip2Model(Blip2PreTrainedModel):
         else:
             language_model = AutoModelForSeq2SeqLM.from_config(config.text_config)
         self.language_model = language_model
+
+        if config.freeze_vision_model:
+            _freeze(self.vision_model)
+
+        if config.freeze_text_model:
+            _freeze(self.language_model)
 
         # Initialize weights and apply final processing
         self.post_init()

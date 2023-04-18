@@ -280,6 +280,10 @@ class Blip2Config(PretrainedConfig):
             Dictionary of configuration options used to initialize any [`PretrainedConfig`].
         num_query_tokens (`int`, *optional*, defaults to 32):
             The number of query tokens passed through the Transformer.
+        freeze_vision_model (`bool`, *optional*, defaults to `True`):
+            Whether to freeze model parameters for fine-tuning (as in original paper).
+        freeze_text_model (`bool`, *optional*, defaults to `True`):
+            Whether to freeze model parameters for fine-tuning (as in original paper).
 
         kwargs (*optional*):
             Dictionary of keyword arguments.
@@ -317,7 +321,16 @@ class Blip2Config(PretrainedConfig):
     model_type = "blip-2"
     is_composition = True
 
-    def __init__(self, vision_config=None, qformer_config=None, text_config=None, num_query_tokens=32, **kwargs):
+    def __init__(
+        self,
+        vision_config=None,
+        qformer_config=None,
+        text_config=None,
+        num_query_tokens=32,
+        freeze_text_model=True,
+        freeze_vision_model=True,
+        **kwargs,
+    ):
         super().__init__(**kwargs)
 
         if vision_config is None:
@@ -341,6 +354,8 @@ class Blip2Config(PretrainedConfig):
         self.is_encoder_decoder = self.text_config.is_encoder_decoder
 
         self.num_query_tokens = num_query_tokens
+        self.freeze_text_model = freeze_text_model
+        self.freeze_vision_model = freeze_vision_model
         self.qformer_config.encoder_hidden_size = self.vision_config.hidden_size
         self.use_decoder_only_language_model = self.text_config.model_type in MODEL_FOR_CAUSAL_LM_MAPPING_NAMES
         self.initializer_factor = 1.0
